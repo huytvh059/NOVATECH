@@ -1,0 +1,1 @@
+<section class="card message-card"><p class="eyebrow">NOVATECH PORTAL</p><h2><?= e($title) ?></h2><p><?= e($message) ?></p><a class="button" href="<?= user()?'/':'/login' ?>">Về trang chính</a></section>

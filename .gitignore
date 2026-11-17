@@ -1,0 +1,7 @@
+﻿# Local secrets, runtime and editors
+.env
+.env.*
+config.php
+*.log
+.vscode/
+.idea/
