@@ -77,3 +77,10 @@ Xem `TESTING.md` cho W1–W9 và các ca bảo mật. `tests/http_check.py` ch�
 HTTP lab không mã hóa mật khẩu/cookie trên đường truyền. Chỉ dùng trong mạng lab tin cậy. Khi vận hành thật phải cấu hình HTTPS, bật `secure_cookie=true`, giới hạn mạng truy cập DB, backup và giám sát. Header CSP không thay thế TLS hoặc kiểm soát mạng.
 
 Webapp chỉ SELECT/INSERT/UPDATE/DELETE trên novatech_db, không CREATE/ALTER/DROP. App không thể bảo vệ DB khỏi người đã có credentials/OS root. Không log mật khẩu hay CSRF token. Sao lưu DB trước mọi thay đổi schema/seed.
+
+## Active Directory / LDAP (lab)
+Đã có provider LDAP, đồng bộ objectGUID và quyền nhóm AD, refresh phiên, admin DB cứu hộ. Mặc định vẫn `auth.provider=db` để không gián đoạn local.
+
+Hướng dẫn chi tiết: `deploy/ldap.md`. DB cũ phải import `db/migrations/002_ldap.sql` một lần bằng quản trị; cài mới dùng schema.sql bản mới, không import migration lần nữa. LDAP thường chỉ khi cấu hình rõ `allow_insecure=true`; không dùng production.
+
+Tài khoản AD quản lý trên DC, không reset password/role/lock qua website; không lưu mật khẩu AD, không tự fallback DB. Các giới hạn “chưa LDAP/AD” ở mô tả Giai đoạn 1 được thay thế bởi phần này. Chưa xác minh end-to-end với DC01 thật.

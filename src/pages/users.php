@@ -7,6 +7,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     $admins=rows("SELECT id FROM users WHERE role='it_admin' AND trang_thai='active' ORDER BY id FOR UPDATE");
     $target=$id?one('SELECT * FROM users WHERE id=? FOR UPDATE',[$id]):null;
     if($id && !$target) abort_page(404,'Tài khoản không tồn tại.');
+    if($target && $target['auth_source']==='ldap') deny('ad_user_managed_externally:'.$id);
     if($action==='reset') {
         $password=password_input();
         query('UPDATE users SET password_hash=?,must_change_password=1,session_version=session_version+1 WHERE id=?',[password_hash($password,PASSWORD_BCRYPT),$id]);
@@ -27,6 +28,10 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     if((int)$id===(int)user()['id']) { if($action==='reset') { destroy_session(); redirect('/login'); } $_SESSION['version']=(int)user()['session_version']+1; }
     flash('Đã cập nhật tài khoản.'); redirect('/admin/users');
 }
-$list=rows('SELECT u.id,u.username,u.ho_ten,u.role,u.trang_thai,d.ten_phong_ban FROM users u JOIN departments d ON d.id=u.phong_ban_id ORDER BY u.id LIMIT 200');
+$list=rows('SELECT u.id,u.username,u.auth_source,u.ho_ten,u.role,u.trang_thai,d.ten_phong_ban FROM users u JOIN departments d ON d.id=u.phong_ban_id ORDER BY u.id LIMIT 200');
 $edit=null; if(isset($_GET['edit'])) { $edit=one('SELECT * FROM users WHERE id=?',[positive_id($_GET['edit'])]); if(!$edit) abort_page(404,'Tài khoản không tồn tại.'); }
+if($edit && $edit['auth_source']==='ldap') {
+    render('message',['title'=>'Tài khoản Active Directory','message'=>'Thông tin, nhóm quyền, khóa/mở và mật khẩu được quản lý trên DC01. Website đồng bộ khi đăng nhập hoặc kiểm tra lại phiên.']);
+    return;
+}
 render('users',compact('list','edit')+['title'=>'Quản lý người dùng']);

@@ -24,6 +24,18 @@ session_start();
 $GLOBALS['current_user']=null;
 if(isset($_SESSION['uid'])) {
     $u=one('SELECT u.*,d.ten_phong_ban FROM users u JOIN departments d ON d.id=u.phong_ban_id WHERE u.id=?',[$_SESSION['uid']]);
+    // Refresh AD ??nh k?, fail closed khi DC kh?ng kh? d?ng; kh?ng l?u m?t kh?u trong phi?n.
+    if($u && $u['auth_source']==='ldap' && time()-($_SESSION['ad_checked_at']??0)>=max(10,min(300,(int)($GLOBALS['config']['auth']['ldap']['refresh_seconds']??60)))) {
+        require_once __DIR__.'/Auth/LdapAuthProvider.php';
+        $synced=(new LdapAuthProvider($GLOBALS['config']['auth']['ldap']??[]))->refresh($u);
+        $_SESSION['ad_checked_at']=time();
+        $u=$synced ? one('SELECT u.*,d.ten_phong_ban FROM users u JOIN departments d ON d.id=u.phong_ban_id WHERE u.id=?',[$synced['id']]) : null;
+    }
+    if($u && $u['auth_source']==='ldap' && ($GLOBALS['config']['auth']['provider']??'db')!=='ldap') $u=null;
+    if($u && $u['auth_source']==='db' && ($GLOBALS['config']['auth']['provider']??'db')==='ldap') {
+        $allowed=array_map('strtolower',$GLOBALS['config']['auth']['local_admins']??[]);
+        if($u['role']!=='it_admin' || !in_array(strtolower($u['username']),$allowed,true)) $u=null;
+    }
     if(!$u || $u['trang_thai']!=='active' || (int)$u['session_version']!==($_SESSION['version']??0) || time()-($_SESSION['last_seen']??0)>1800) {
         $_SESSION=[]; session_regenerate_id(true);
     } else { $GLOBALS['current_user']=$u; $_SESSION['last_seen']=time(); }

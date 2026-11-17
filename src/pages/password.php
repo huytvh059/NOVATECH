@@ -1,4 +1,9 @@
 <?php
+if(user()['auth_source']==='ldap') {
+    if($_SERVER['REQUEST_METHOD']==='POST') deny('ad_password_managed_externally');
+    render('message',['title'=>'Mật khẩu Active Directory','message'=>'Tài khoản này được quản lý bởi AD. Đổi mật khẩu trên máy Windows thuộc domain (Ctrl+Alt+Delete, Change a password) hoặc liên hệ quản trị AD.']);
+    return;
+}
 if($_SERVER['REQUEST_METHOD']==='POST') {
     $old=$_POST['current_password']??''; $new=password_input();
     if(!is_string($old) || !password_verify($old,user()['password_hash'])) throw new InvalidArgumentException('Mật khẩu hiện tại không đúng.');

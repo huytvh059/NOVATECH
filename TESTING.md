@@ -40,3 +40,9 @@ php tests/self_check.php
 - Self-check: 20 kiểm tra đạt.
 - Kết quả HTTP/DB được cập nhật sau vòng kiểm thử tích hợp.
 - Nginx/PHP-FPM, route OpenStack và W1–W9 trên IP lab thật cần nghiệm thu tại hai máy đích.
+
+## LDAP bổ sung
+```bash
+php tests/ldap_check.php
+```
+Đã kiểm tra thuần: normalizer username, cờ cho phép LDAP thường, URI, trạng thái khóa/hết hạn AD, mapping phòng ban, LDAP filter escape, GUID roundtrip. Chưa kết nối DC01 thật; checklist AD end-to-end nằm tại `deploy/ldap.md`.

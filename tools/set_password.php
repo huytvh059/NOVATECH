@@ -8,8 +8,9 @@ try {
     if(!preg_match('/\A[a-zA-Z0-9._-]{1,64}\z/',$username)) throw new InvalidArgumentException('Cách dùng: php tools/set_password.php USERNAME');
     $path=getenv('NOVATECH_CONFIG') ?: '/etc/novatech/config.php';
     $GLOBALS['config']=require $path;
-    $u=one('SELECT id,username FROM users WHERE username=?',[$username]);
+    $u=one('SELECT id,username,auth_source FROM users WHERE username=?',[$username]);
     if(!$u) throw new InvalidArgumentException('Tài khoản không tồn tại.');
+    if($u['auth_source']!=='db') throw new InvalidArgumentException('M?t kh?u AD ch? ???c qu?n l? tr?n DC.');
     $hash=password_hash(read_password(),PASSWORD_BCRYPT);
     $db=db(); $db->beginTransaction();
     query('UPDATE users SET password_hash=?,must_change_password=1,session_version=session_version+1 WHERE id=?',[$hash,$u['id']]);

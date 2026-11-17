@@ -7,6 +7,7 @@ CREATE TABLE users (
  ho_ten VARCHAR(150) NOT NULL, email VARCHAR(190) NOT NULL, so_may_le VARCHAR(20) NOT NULL DEFAULT '', phong_ban_id INT UNSIGNED NOT NULL,
  role ENUM('employee','accounting','hr','it_admin') NOT NULL DEFAULT 'employee', trang_thai ENUM('active','locked') NOT NULL DEFAULT 'active',
  so_lan_sai INT UNSIGNED NOT NULL DEFAULT 0, khoa_den DATETIME NULL, must_change_password TINYINT NOT NULL DEFAULT 1,
+ auth_source ENUM('db','ldap') NOT NULL DEFAULT 'db', ad_guid CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NULL UNIQUE, ad_synced_at DATETIME NULL,
  session_version INT UNSIGNED NOT NULL DEFAULT 1, ngay_tao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
  FOREIGN KEY(phong_ban_id) REFERENCES departments(id), INDEX(role,trang_thai), INDEX(phong_ban_id)
 ) ENGINE=InnoDB;
